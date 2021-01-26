@@ -1,0 +1,5 @@
+.idea
+*.aux
+*.synctex.gz
+*.log
+*.out

@@ -1,0 +1,120 @@
+\documentclass[11pt]{scrartcl}
+
+% Packages
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{multicol}
+\usepackage{enumitem}
+\usepackage[bottom=1cm]{geometry}
+
+\makeatletter
+\usepackage[
+%    pdftitle={\@title},
+%    pdfauthor={\@author},
+%    pdfsubject={Reiforcement Learning}
+]{hyperref}
+\makeatother
+
+% Style settings
+\setlength{\parindent}{0}
+\RedeclareSectionCommand[
+	beforeskip=6pt,
+	afterskip=6pt
+]{section}
+
+% Settings
+\title{Env: Traffic Lights Simulation}
+\author{Dominik Woiwode}
+
+
+
+
+% Document
+\begin{document}
+    \begin{center}
+        \makeatletter
+        {\Huge\bfseries\@title}\\
+        {\large\bfseries\@author \quad-\quad\@date}
+        \makeatother
+    \end{center}
+
+
+    \section{Description}\label{sec:description}
+    This environment tries to simulate a network of streets, vehicles and intersections with traffic lights.
+    The agent is responsible for handling the traffic lights at the intersections in a way that the achieved traffic flow is maximized.
+    Furthermore all vehicles have to reach its goal in a given time.
+    The traffic flow will be calculated by the amount of vehicles moving.
+
+    Each vehicle follows a given path and from a starting position and tries to reach its destination.
+    The path is precomputed with a simple search-algorithm and vehicles are not allowed to touch/crash into each other.
+
+    First, a simple simulation based on discrete values will be implemented.
+    This environment can be extended further to increase the complexity:
+    \begin{itemize}[noitemsep]
+        \item by using continuous values for vehicle positions
+        \item by using continuous values for the street network
+        \item by improving vehicle ai (e.g. lane switching, acceleration, rerouting based on traffic, etc.)
+    \end{itemize}
+
+    The number of vehicles in front of a traffic light can be used as observation-space.
+    This might be interpreted as a camera in the real world, which can identify and count waiting vehicles.
+
+    In a more complex network with two or more intersections it has to be considered whether each intersection is handled by a different agent or whether one agent handles all traffic lights.
+
+
+    \section{Frameworks}
+    Python 3.8.6 will be used for this project, as this version of Python was already used for all the exercises.
+    It is currently not planed to use any framework for the environment besides \href{https://gym.openai.com/}{OpenAI-Gym} and maybe \href{https://numpy.org/}{numpy}.
+    For the agents it is planned to use recommended agents provided by \href{https://github.com/hill-a/stable-baselines}{hill-a/stable-baselines}.
+
+
+    \section{Computing Resources}
+    For training the agent I can use a Laptop with an Nvidia GeForce 940MX.
+    It will be checked whether I need to use Google Collab.
+
+
+    \section{Timeline}
+    These are the milestones planned for this project. All dates are given for the year 2021.
+    \begin{itemize}[noitemsep]
+        \item[08/02] Working simple environment (e.g. a single plusshaped crossing with traffic lights)
+        \item[29/02] More complex environment with at least one working agent
+        \item[10/03] Comparison of different agents solving environments with different difficulty levels \\
+                     Start working on presentation slides
+        \item[17/03] Deadline for submission
+    \end{itemize}
+
+
+%    \clearpage
+%    \part*{Appendix}
+%
+%
+%    \section{Features}\label{subsec:features}
+%    \newcommand{\dwyes}[1]{\textcolor{black}{#1}}
+%    \newcommand{\dwmaybe}[1]{\textcolor{darkgray}{(#1)}}
+%    \newcommand{\dwno}[1]{\textcolor{gray}{#1}}
+%
+%    Here is an overview of features that shape the type of this environment:
+%    \begin{center}
+%        \begin{tabular}{|c|c|p{0.5\linewidth}|}
+%            \hline
+%            \multicolumn{2}{|c|}{\textbf{Features}} & \textbf{Comment} \\
+%            \hline
+%            \hline
+%            \dwyes{Fully Observable} & \dwyes{Partially Observable} & Depending on implementation                                                            \\
+%            \hline
+%            \dwno{Static}            & \dwyes{Dynamic}              & The simulation continues even if the agent does nothing                                \\
+%            \hline
+%            \dwno{Discrete}          & \dwyes{Continuous}           & The positions of the cars will be in continuous space                                  \\
+%            \hline
+%            \dwyes{Deterministic}    & \dwno{Stochastic}            & The simulation itself is deterministic. The spawning of cars could be randomized       \\
+%            \hline
+%            \dwyes{Single Agent}     & \dwyes{Multi Agent}          & There could be an agent for each crosssection or a single agent for all traffic lights \\
+%            \hline
+%            \dwno{Competitive}       & \dwyes{Collaborative}        & Assuming multiple agents, they would try to help each other                            \\
+%            \hline
+%            Episodic                 & Sequential                   &                                                                                        \\
+%            \hline
+%        \end{tabular}
+%    \end{center}
+
+\end{document}
