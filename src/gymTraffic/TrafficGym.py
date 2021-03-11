@@ -3,7 +3,7 @@ import numpy as np
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.monitor import Monitor
-from stable_baselines3.common.vec_env import VecEnv
+from stable_baselines3.common.vec_env import VecEnv, SubprocVecEnv, VecFrameStack
 
 from worlds.graph.trafficlights import TrafficLight
 from worlds.savepoints import graph_3x3circle
@@ -62,7 +62,10 @@ class TrafficGym(gym.Env):
         return obs,reward, self.horizon <= self.world.t, {}
 
     def get_observation(self):
-        return np.asarray([self._get_observation_for(tl) for tl in self.world.traffic_light_waypoints]).reshape(-1)
+        obs = []
+        for tl in self.world.traffic_light_waypoints:
+            obs += self._get_observation_for(tl)
+        return np.asarray(obs)
 
     def _get_observation_for(self, traffic_light: TrafficLight):
         obs = []
@@ -87,10 +90,54 @@ class RandomAgent:
 
 
 def stable_baselines(env):
+    def make_env(env, rank, seed=0):
+        """
+        Utility function for multiprocessed env.
+
+        :param env_id: (str) the environment ID
+        :param seed: (int) the inital seed for RNG
+        :param rank: (int) index of the subprocess
+        """
+
+        def _init():
+            env_ = env()
+            # Important: use a different seed for each environment
+            env_.seed(seed + rank)
+            return env_
+
+        return _init
     # logging.basicConfig(level=logging.NOTSET)
     # model = PPO('MlpPolicy', env,verbose=1)
-    env = Monitor(env)
-    # venv = make_vec_env(lambda: env,10)
+    num_cpu = 10  # Number of processes to use
+    env_vec = SubprocVecEnv([make_env(env, i) for i in range(num_cpu)])
+    # env = Monitor(env)
+
+    # Create the vectorized environment
+
+    model = PPO(
+        "MlpPolicy",
+        env_vec,
+        tensorboard_log="./ppo_trafficgym_tensorboard/",
+        verbose=2,
+        learning_rate=1e-2,
+        # gamma=0.95,
+        batch_size=256,
+        # batch_size=512,
+        policy_kwargs=dict(net_arch=[256, 512, 256]),
+    )
+    model.load("ppo.stable_baselines")
+    env = Monitor(env())
+    print("Evaluating...")
+    evaluation = evaluate_policy(model, env)
+    print("Eval1:", evaluation)
+    model.learn(2000)
+    model.save("ppo.stable_baselines")
+    print("Evaluating...")
+    evaluation = evaluate_policy(model, env)
+    print("Eval2:", evaluation)
+
+def test_baseline(env):
+    env = env()
     model = PPO(
         "MlpPolicy",
         env,
@@ -98,21 +145,19 @@ def stable_baselines(env):
         verbose=2,
         learning_rate=1e-2,
         # gamma=0.95,
-        # batch_size=256,
-        batch_size=512,
-        policy_kwargs=dict(net_arch=[256, 256, 256]),
+        batch_size=256,
+        # batch_size=512,
+        policy_kwargs=dict(net_arch=[256, 512, 256]),
     )
-    evaluation = evaluate_policy(model, env)
-    print(evaluation)
-    model.learn(1)
-    model.save("ppo.stable_baselines")
-    evaluation = evaluate_policy(model, env)
-    print(evaluation)
+    model.load("ppo.stable_baselines")
 
-    obs = env.reset()
-    for i in range(1000):
-        action, _states = model.predict(obs)
-        obs, rewards, dones, info = env.step(action)
+    done = False
+    observation = env.reset()
+    while not done:
+        action, _ = model.predict(observation)
+        # print(action)
+        observation, reward, done, info = env.step(action)
+        print(reward)
         env.render()
 
 
@@ -134,7 +179,8 @@ def custom_run(env):
 if __name__ == '__main__':
     from worlds.savepoints import *
 
-    env = TrafficGym(graph_cross,horizon=100)
+    env = lambda: TrafficGym(graph_3x3circle, horizon=1000)
 
-    stable_baselines(env)
+    # stable_baselines(env)
+    test_baseline(env)
     # custom_run(env)
