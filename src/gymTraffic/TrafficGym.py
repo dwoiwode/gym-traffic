@@ -1,3 +1,5 @@
+import time
+
 import gym
 import numpy as np
 from stable_baselines3.common.env_util import make_vec_env
@@ -71,9 +73,10 @@ class TrafficGym(gym.Env):
         obs = []
         for street in traffic_light.incoming:
             if len(street.vehicles) == 0:
-                obs.append(0)
+                obs.append(-1)
             else:
-                obs.append(max(street.vehicles.values()) / street.length())
+                closest_car = sum(street.vehicles.values())
+                obs.append(closest_car / street.length() / len(street.vehicles))
             # obs.append(len(street.vehicles) *10 / street.length())
         return obs
 
@@ -125,12 +128,15 @@ def stable_baselines(env):
         # batch_size=512,
         policy_kwargs=dict(net_arch=[256, 512, 256]),
     )
-    model.load("ppo.stable_baselines")
+    # model.load("ppo.stable_baselines")
     env = Monitor(env())
     print("Evaluating...")
     evaluation = evaluate_policy(model, env)
     print("Eval1:", evaluation)
+    t1 = time.time()
     model.learn(2000)
+    t2 = time.time()
+    print(f"Learning took {t2-t1} seconds")
     model.save("ppo.stable_baselines")
     print("Evaluating...")
     evaluation = evaluate_policy(model, env)
@@ -157,6 +163,7 @@ def test_baseline(env):
         action, _ = model.predict(observation)
         # print(action)
         observation, reward, done, info = env.step(action)
+        print(observation)
         print(reward)
         env.render()
 
@@ -169,10 +176,10 @@ def custom_run(env):
         done = False
         while not done:
             action = agent.get_action(observation)
-            # print(action)
+            # print("Action:", action)
             observation, reward, done, info = env.step(action)
-            print(observation)
-            print(reward)
+            # print("Obs:",observation)
+            print("Reward:",reward)
             env.render()
 
 
@@ -181,6 +188,6 @@ if __name__ == '__main__':
 
     env = lambda: TrafficGym(graph_3x3circle, horizon=1000)
 
-    # stable_baselines(env)
-    test_baseline(env)
+    stable_baselines(env)
+    # test_baseline(env)
     # custom_run(env)
