@@ -24,10 +24,19 @@ class Vehicle:
     def position(self):
         return self.current_street.get_position(self)
 
+    @property
+    def next_street(self):
+        if isinstance(self.current_street, Waypoint):
+            # Todo: Choose lane based on fullness
+            return np.random.choice(self.current_street.streets_to(self.path[0]))
+        elif isinstance(self.current_street, Street):
+            assert self.current_street.destination == self.path[0]
+            return self.path[0]
+
     def can_drive(self, dt=1):
-        foreseeing = 2
+        foreseeing = 2.
         own_position = self.current_street.simulate_move(self, 0)
-        next_position = self.current_street.simulate_move(self, foreseeing)
+        next_position = self.current_street.simulate_move(self, foreseeing) + self.length / 2
 
         # Check fuel
         if self.fuel <= 0:
@@ -35,20 +44,17 @@ class Vehicle:
 
         # Check Traffic lights
         if isinstance(self.current_street, Street):
-            crossing = self.current_street.destination
-            on_crossing = self.current_street.length() - crossing.length() / 2
-            if own_position < on_crossing <= next_position:
-                return crossing.is_allowed_to_drive_from(self.current_street)
-
-        # Check other vehicles
-        for vehicle in self.current_street.vehicles:
-            vehicle_position = self.current_street.simulate_move(vehicle, 0)
-            vehicle_next_position = self.current_street.simulate_move(vehicle, foreseeing/2)
-            if own_position < vehicle_position:  # Other Vehicle is in front of us
-                if next_position + self.length / 2 > vehicle_next_position - vehicle.length/2:
+            next_crossing = self.current_street.destination
+            on_next_crossing = self.current_street.length() - next_crossing.length() / 2
+            if own_position < on_next_crossing <= next_position:  # Drives onto crossing next step
+                if not next_crossing.is_allowed_to_drive_from(self.current_street):  # is_green
                     return False
+            elif next_position > self.current_street.length():
+                next_street = self.next_street
+                return next_street is None or not next_street.will_collide(self, foreseeing=foreseeing)
 
-        return True
+        # Check other vehicles in street
+        return not self.current_street.will_collide(self, foreseeing=foreseeing)
 
     def step(self, dt=1) -> bool:
         """
@@ -68,12 +74,10 @@ class Vehicle:
             if len(self.path) == 0:
                 return True
 
-            if isinstance(self.current_street, Waypoint):
-                # Todo: Choose street based on fullness
-                self.current_street = np.random.choice(self.current_street.streets_to(self.path[0]))
-            elif isinstance(self.current_street, Street):
-                assert self.current_street.destination == self.path[0]
-                self.current_street = self.path.pop(0)
+            next_street = self.next_street
+            if isinstance(next_street, Waypoint):
+                self.path.pop(0)
+            self.current_street = next_street
 
             self.current_street.register_vehicle(self)
 

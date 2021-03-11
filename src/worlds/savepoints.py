@@ -32,26 +32,26 @@ def graph_3x3bidirectional() -> GraphWorld:
     waypoint9 = TrafficLight((350, 250))
 
     # Horizontal connections
-    waypoint1.connect_to(waypoint2)
-    waypoint2.connect_to(waypoint3)
+    waypoint1.connect_to(waypoint2, both_directions=True)
+    waypoint2.connect_to(waypoint3, both_directions=True)
 
-    waypoint4.connect_to(waypoint5)
-    waypoint5.connect_to(waypoint6)
+    waypoint4.connect_to(waypoint5, both_directions=True)
+    waypoint5.connect_to(waypoint6, both_directions=True)
 
-    waypoint7.connect_to(waypoint8)
-    waypoint8.connect_to(waypoint9)
+    waypoint7.connect_to(waypoint8, both_directions=True)
+    waypoint8.connect_to(waypoint9, both_directions=True)
 
     # Vertical
-    waypoint1.connect_to(waypoint4)
-    waypoint2.connect_to(waypoint5)
-    waypoint3.connect_to(waypoint6)
-    waypoint4.connect_to(waypoint7)
-    waypoint5.connect_to(waypoint8)
-    waypoint6.connect_to(waypoint9)
+    waypoint1.connect_to(waypoint4, both_directions=True)
+    waypoint2.connect_to(waypoint5, both_directions=True)
+    waypoint3.connect_to(waypoint6, both_directions=True)
+    waypoint4.connect_to(waypoint7, both_directions=True)
+    waypoint5.connect_to(waypoint8, both_directions=True)
+    waypoint6.connect_to(waypoint9, both_directions=True)
 
     # Diagonal
-    waypoint1.connect_to(waypoint5, both_directions=False)
-    waypoint5.connect_to(waypoint9, both_directions=False)
+    waypoint1.connect_to(waypoint5)
+    waypoint5.connect_to(waypoint9)
 
     world.add_waypoints(waypoint1, waypoint2, waypoint3, waypoint4, waypoint5, waypoint6, waypoint7, waypoint8,
                         waypoint9)
@@ -67,14 +67,14 @@ def graph_3x3bidirectional() -> GraphWorld:
     spawn7 = SpawnPoint(waypoint7.position_relative((-shift, shift)))
     spawn8 = SpawnPoint(waypoint4.position_relative((-shift, 0)))
 
-    spawn1.connect_to(waypoint1)
-    spawn2.connect_to(waypoint2)
-    spawn3.connect_to(waypoint3)
-    spawn4.connect_to(waypoint6)
-    spawn5.connect_to(waypoint9)
-    spawn6.connect_to(waypoint8)
-    spawn7.connect_to(waypoint7)
-    spawn8.connect_to(waypoint4)
+    spawn1.connect_to(waypoint1, both_directions=True)
+    spawn2.connect_to(waypoint2, both_directions=True)
+    spawn3.connect_to(waypoint3, both_directions=True)
+    spawn4.connect_to(waypoint6, both_directions=True)
+    spawn5.connect_to(waypoint9, both_directions=True)
+    spawn6.connect_to(waypoint8, both_directions=True)
+    spawn7.connect_to(waypoint7, both_directions=True)
+    spawn8.connect_to(waypoint4, both_directions=True)
 
 
     world.add_waypoints(spawn1,spawn2,spawn3,spawn4,spawn5,spawn6,spawn7,spawn8)
@@ -82,6 +82,8 @@ def graph_3x3bidirectional() -> GraphWorld:
     world.validate()
 
     return world
+
+
 def graph_3x3circle() -> GraphWorld:
     world = GraphWorld()
 
@@ -102,23 +104,23 @@ def graph_3x3circle() -> GraphWorld:
     waypoint9 = TrafficLight((350, 250))
 
     #  Circle connections
-    waypoint1.connect_to(waypoint4, both_directions=False)
-    waypoint4.connect_to(waypoint7, both_directions=False)
-    waypoint7.connect_to(waypoint8, both_directions=False)
-    waypoint8.connect_to(waypoint9, both_directions=False)
-    waypoint9.connect_to(waypoint6, both_directions=False)
-    waypoint6.connect_to(waypoint3, both_directions=False)
-    waypoint3.connect_to(waypoint2, both_directions=False)
-    waypoint2.connect_to(waypoint1, both_directions=False)
+    waypoint1.connect_to(waypoint4)
+    waypoint4.connect_to(waypoint7)
+    waypoint7.connect_to(waypoint8)
+    waypoint8.connect_to(waypoint9)
+    waypoint9.connect_to(waypoint6)
+    waypoint6.connect_to(waypoint3)
+    waypoint3.connect_to(waypoint2)
+    waypoint2.connect_to(waypoint1)
 
     # Additional connections
-    waypoint1.connect_to(waypoint5, both_directions=False)
-    waypoint2.connect_to(waypoint5, both_directions=False)
-    waypoint3.connect_to(waypoint5, both_directions=False)
+    waypoint1.connect_to(waypoint5)
+    waypoint2.connect_to(waypoint5)
+    waypoint3.connect_to(waypoint5)
 
-    waypoint5.connect_to(waypoint6, both_directions=False)
-    waypoint5.connect_to(waypoint8, both_directions=False)
-    waypoint5.connect_to(waypoint9, both_directions=False)
+    waypoint5.connect_to(waypoint6)
+    waypoint5.connect_to(waypoint8)
+    waypoint5.connect_to(waypoint9)
 
     world.add_waypoints(waypoint1, waypoint2, waypoint3, waypoint4, waypoint5, waypoint6, waypoint7, waypoint8,
                         waypoint9)
@@ -134,18 +136,42 @@ def graph_3x3circle() -> GraphWorld:
     spawn7 = SpawnPoint(waypoint7.position_relative((-shift, shift)))
     spawn8 = SpawnPoint(waypoint4.position_relative((-shift, 0)))
 
-    spawn1.connect_to(waypoint1)
-    spawn2.connect_to(waypoint2)
-    spawn3.connect_to(waypoint3)
-    spawn4.connect_to(waypoint6)
-    spawn5.connect_to(waypoint9)
-    spawn6.connect_to(waypoint8)
-    spawn7.connect_to(waypoint7)
-    spawn8.connect_to(waypoint4)
+    spawn1.connect_to(waypoint1, both_directions=True)
+    spawn2.connect_to(waypoint2, both_directions=True)
+    spawn3.connect_to(waypoint3, both_directions=True)
+    spawn4.connect_to(waypoint6, both_directions=True)
+    spawn5.connect_to(waypoint9, both_directions=True)
+    spawn6.connect_to(waypoint8, both_directions=True)
+    spawn7.connect_to(waypoint7, both_directions=True)
+    spawn8.connect_to(waypoint4, both_directions=True)
 
 
     world.add_waypoints(spawn1,spawn2,spawn3,spawn4,spawn5,spawn6,spawn7,spawn8)
 
     world.validate()
+
+    return world
+
+def graph_cross() -> GraphWorld:
+    world = GraphWorld()
+    m = 150
+    waypoint_north = SpawnPoint((0,-m),can_end=False)
+    waypoint_south = SpawnPoint((0,m),can_end=False)
+    waypoint_west = SpawnPoint((-m,0),can_end=False)
+    waypoint_east = SpawnPoint((m,0),can_end=False)
+    waypoint_exit = SpawnPoint((m,m), can_start=False)
+
+    waypoint_middle = TrafficLight((0,0))
+
+    waypoint_north.connect_to(waypoint_middle)
+    waypoint_south.connect_to(waypoint_middle)
+    waypoint_west.connect_to(waypoint_middle)
+    waypoint_east.connect_to(waypoint_middle)
+    waypoint_middle.connect_to(waypoint_exit)
+
+    world.add_waypoints(waypoint_north,waypoint_middle,waypoint_west,waypoint_exit,waypoint_south,waypoint_east)
+
+    world.validate()
+
 
     return world

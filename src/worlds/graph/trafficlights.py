@@ -17,9 +17,9 @@ class Driveable:
     def length(self):
         raise NotImplementedError(f"Requires .length() function for class {self.__class__.__name__}")
 
-
-    def get_position(self, vehicle:"Vehicle") -> Tuple[float, float]:
-        raise NotImplementedError(f"Requires .get_position(vehicle: Vehicle) function for class {self.__class__.__name__}")
+    def get_position(self, vehicle: "Vehicle") -> Tuple[float, float]:
+        raise NotImplementedError(
+            f"Requires .get_position(vehicle: Vehicle) function for class {self.__class__.__name__}")
 
     def register_vehicle(self, vehicle: "Vehicle"):
         if vehicle in self.vehicles:
@@ -34,7 +34,7 @@ class Driveable:
         self.vehicles.pop(vehicle)
 
     def simulate_move(self, vehicle: "Vehicle", dt=1) -> float:
-        return self.vehicles[vehicle] + vehicle.velocity * dt
+        return self.vehicles.get(vehicle, 0) + vehicle.velocity * dt
 
     def move(self, vehicle: "Vehicle", dt=1) -> bool:
         """ :returns True if finished, else False """
@@ -46,11 +46,26 @@ class Driveable:
             return True
         return False
 
+    def will_collide(self, vehicle: "Vehicle", foreseeing: float = 1):
+        if vehicle.current_street == self:
+            own_position = self.simulate_move(vehicle, 0)
+            next_position = self.simulate_move(vehicle, foreseeing) + vehicle.length / 2
+        else:
+            own_position = 0
+            next_position = vehicle.current_street.simulate_move(vehicle, foreseeing) + vehicle.length / 2 - vehicle.current_street.length()
+        for vehicle in self.vehicles:
+            vehicle_position = self.simulate_move(vehicle, 0)
+            vehicle_next_position = self.simulate_move(vehicle, foreseeing / 2) - vehicle.length / 2
+            if own_position < vehicle_position and next_position >= vehicle_next_position:
+                return True
+        return False
+
+
 
 class Waypoint(Driveable):
     waypoint_counter = 0
 
-    def __init__(self, position: Tuple[float, float], size: float=20):
+    def __init__(self, position: Tuple[float, float], size: float = 20):
         super().__init__()
         Waypoint.waypoint_counter += 1
         self.size = size
@@ -85,7 +100,7 @@ class Waypoint(Driveable):
     def outgoing(self) -> List["Street"]:
         return self._outgoing
 
-    def connect_to(self, destination: "Waypoint", both_directions=True, speed_limit=kmh_to_ms(50)) -> List["Street"]:
+    def connect_to(self, destination: "Waypoint", both_directions=False, speed_limit=kmh_to_ms(50)) -> List["Street"]:
         streets = []
         for street in self._outgoing:
             if street.destination == destination:
@@ -106,8 +121,8 @@ class Waypoint(Driveable):
         valid = True
         if len(self.incoming) == 0:
             warnings.warn(f"{self} cannot be reached!")
-        elif len(self.outgoing) == 0:
-            warnings.warn(f"{self} can be reached but has no way to exit")
+        if len(self.outgoing) == 0:
+            warnings.warn(f"{self} has no way to exit")
             valid = False
         return valid
 
@@ -150,14 +165,14 @@ class Waypoint(Driveable):
 
         return valid
 
-    def streets_to(self, waypoint:"Waypoint"):
+    def streets_to(self, waypoint: "Waypoint"):
         return list(filter(lambda s: s.destination == waypoint, self.outgoing))
 
     def position_relative(self, relative):
         x, y = self.position
         return x + relative[0], y + relative[1]
 
-    def is_allowed_to_drive_from(self, street:"Street"):
+    def is_allowed_to_drive_from(self, street: "Street"):
         return True
 
 
@@ -167,10 +182,19 @@ class SpawnPoint(Waypoint):
         self.can_start = can_start
         self.can_end = can_end
 
+    def _validate_self(self) -> bool:
+        valid = True
+        if not self.can_start and len(self.incoming) == 0:
+            warnings.warn(f"{self} cannot be reached!")
+        if not self.can_end and len(self.outgoing) == 0:
+            warnings.warn(f"{self} has no way to exit")
+            valid = False
+        return valid
+
 
 class TrafficLight(Waypoint):
-    def __init__(self, position: Tuple[float, float], size:float=20, transition_duration:float=20):
-        super().__init__(position,size=size)
+    def __init__(self, position: Tuple[float, float], size: float = 20, transition_duration: float = 20):
+        super().__init__(position, size=size)
         self.green = []
         self.transition_duration = transition_duration
 
@@ -180,10 +204,10 @@ class TrafficLight(Waypoint):
         if np.random.random() < 0.01:
             self.green = np.random.choice(self.incoming, 1)
 
-    def is_allowed_to_drive_from(self, street:"Street"):
+    def is_allowed_to_drive_from(self, street: "Street"):
         return self.is_green(street)
 
-    def is_green(self, street:"Street"):
+    def is_green(self, street: "Street"):
         return street in self.green
 
 
@@ -213,8 +237,8 @@ class Street(Driveable):
 
     @property
     def orientation(self):
-        x,y = np.asarray(self.destination.position) - self.start.position
-        return np.arctan2(x,y)
+        x, y = np.asarray(self.destination.position) - self.start.position
+        return np.arctan2(x, y)
 
     def validate(self):
         valid = True
@@ -237,4 +261,3 @@ class Street(Driveable):
             if street.destination == self.start:
                 return street
         return None
-
