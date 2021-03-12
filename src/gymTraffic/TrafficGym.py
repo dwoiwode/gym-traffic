@@ -53,7 +53,8 @@ class TrafficGym(gym.Env):
         self.logger.debug(f"step<{self.world.t:.2f}>({action})")
         for state, crossing in zip(action, self.world.traffic_light_waypoints):
             assert isinstance(crossing, TrafficLight)
-            crossing.green = [crossing.incoming[state]]
+            if state < len(crossing.incoming):
+                crossing.green = [crossing.incoming[state]]
 
         # Simulate until next action is required
         self._next_action += self.action_frequency
@@ -82,6 +83,33 @@ class TrafficGym(gym.Env):
 
     def get_reward(self):
         return (self.world.mean_velocity - 5) / 5
+
+
+class TrafficGymMeta(TrafficGym):
+    def __init__(self, build_world_function=graph_3x3circle, action_frequency=1, calculation_frequency=0.01, horizon=1000):
+        super().__init__(build_world_function=build_world_function, action_frequency=action_frequency,
+                         calculation_frequency=calculation_frequency, horizon=horizon)
+        self._traffic_light_counter = 0
+        self.action_array = self.action_space.sample()
+
+        self._original_action_space = self.action_space
+
+        self.action_space = gym.spaces.Discrete(8)
+        low = np.zeros(8, dtype=np.float32)
+        high = np.ones(8, dtype=np.float32) * 2
+        self.observation_space = gym.spaces.Box(low, high)
+
+    def get_observation(self):
+        observation_part = self._get_observation_for(self.world.traffic_light_waypoints[self._traffic_light_counter])
+        observation = np.ones(8, dtype=np.float32) * -1
+        observation[:len(observation_part)] = observation_part
+        return observation
+
+    def step(self, action):
+        self.action_array[self._traffic_light_counter] = action
+        ret = super(TrafficGymMeta, self).step(self.action_array)
+        self._traffic_light_counter = (self._traffic_light_counter + 1) % len(self.world.traffic_light_waypoints)
+        return ret
 
 
 class RandomAgent:
@@ -169,6 +197,7 @@ def test_baseline(env):
 
 
 def custom_run(env):
+    env = env()
     agent = RandomAgent(env)
 
     for i in range(2):
@@ -186,7 +215,7 @@ def custom_run(env):
 if __name__ == '__main__':
     from worlds.savepoints import *
 
-    env = lambda: TrafficGym(graph_3x3circle, horizon=1000)
+    env = lambda: TrafficGymMeta(graph_3x3circle, horizon=1000)
 
     stable_baselines(env)
     # test_baseline(env)
