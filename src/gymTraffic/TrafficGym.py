@@ -154,7 +154,8 @@ def stable_baselines(env):
         # gamma=0.95,
         batch_size=256,
         # batch_size=512,
-        policy_kwargs=dict(net_arch=[256, 512, 256]),
+        # policy_kwargs=dict(net_arch=[256, 512, 256]),
+        policy_kwargs=dict(net_arch=[64, 64]),
     )
     # model.load("ppo.stable_baselines")
     env = Monitor(env())
@@ -170,7 +171,7 @@ def stable_baselines(env):
     evaluation = evaluate_policy(model, env)
     print("Eval2:", evaluation)
 
-def test_baseline(env):
+def test_baseline(env, render=True):
     env = env()
     model = PPO(
         "MlpPolicy",
@@ -181,19 +182,37 @@ def test_baseline(env):
         # gamma=0.95,
         batch_size=256,
         # batch_size=512,
-        policy_kwargs=dict(net_arch=[256, 512, 256]),
+        # policy_kwargs=dict(net_arch=[256, 512, 256]),
+        policy_kwargs=dict(net_arch=[64, 64]),
     )
     model.load("ppo.stable_baselines")
 
     done = False
     observation = env.reset()
+    t = []
+    velocities = []
+    rewards = []
     while not done:
         action, _ = model.predict(observation)
         # print(action)
         observation, reward, done, info = env.step(action)
         print(observation)
         print(reward)
-        env.render()
+        if render:
+            env.render()
+
+        velocities.append(env.world.mean_velocity)
+        t.append(env.world.t)
+        rewards.append(reward)
+
+    import matplotlib.pyplot as plt
+
+    plt.plot(t,velocities,".",label="Velocity")
+    plt.tight_layout()
+    plt.show()
+    plt.plot(t,rewards,".",label="Reward")
+    plt.tight_layout()
+    plt.show()
 
 
 def custom_run(env):
@@ -218,5 +237,5 @@ if __name__ == '__main__':
     env = lambda: TrafficGymMeta(graph_3x3circle, horizon=1000)
 
     stable_baselines(env)
-    # test_baseline(env)
+    test_baseline(env, render=False)
     # custom_run(env)
