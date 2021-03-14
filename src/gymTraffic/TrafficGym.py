@@ -77,7 +77,7 @@ class TrafficGym(gym.Env):
                 obs.append(-1)
             else:
                 closest_car = sum(street.vehicles.values())
-                obs.append(closest_car / street.length() / len(street.vehicles))
+                obs.append(closest_car / street.length())
             # obs.append(len(street.vehicles) *10 / street.length())
         return obs
 
