@@ -1,0 +1,81 @@
+\RequirePackage{url}
+\RequirePackage{dsfont}
+\RequirePackage{algorithmic}
+\RequirePackage{graphicx}
+\RequirePackage{xcolor}
+\mode<presentation>
+
+%\newif\ifbeamer@secheader
+%\beamer@secheaderfalse
+%
+%\DeclareOptionBeamer{secheader}{\beamer@secheadertrue}
+%\ProcessOptionsBeamer
+
+\useinnertheme[shadow]{rounded}
+%\usepackage{beamerouterthemeklb}
+%\useoutertheme{infolines}
+\usefonttheme[onlysmall]{structurebold}
+
+\usetheme{Boadilla}
+%\useinnertheme{rectangles}
+\usecolortheme{whale}
+\setbeamercolor{alerted text}{fg=blue}
+\useoutertheme{infolines}
+\setbeamertemplate{navigation symbols}{\vspace{-5pt}} % to lower the logo
+\setbeamercolor{date in head/foot}{bg=blue} % blue
+\setbeamercolor{date in head/foot}{fg=white}
+\setbeamercolor{author in head/foot}{bg=blue} %blue
+\setbeamercolor{author in head/foot}{fg=white} %blue
+\setbeamercolor{title in head/foot}{bg=blue} % blue
+\setbeamercolor{title}{fg=white, bg=blue}
+\setbeamercolor{block title}{fg=white,bg=blue}
+\setbeamercolor{block body}{bg=blue!10}
+\setbeamercolor{frametitle}{fg=white, bg=blue}
+\setbeamercovered{invisible}
+
+%\ifbeamer@secheader\else\setbeamertemplate{headline}[default]\fi
+
+% Tills' opinion: should be done in an inner theme, not here.
+
+%\usesubitemizeitemtemplate{\tiny\raise1.5pt\hbox{\donotcoloroutermaths$\blacktriangleright$}}
+%\usesubsubitemizeitemtemplate{\tiny\raise1.5pt\hbox{\donotcoloroutermaths$\bigstar$}}
+
+\mode
+<all>
+
+\DeclareMathOperator*{\TimesOp}{\huge{\times}}
+%\usepackage{../texinputs/cibeamer}
+
+% Zapf Chancery font: the only way I found of getting lowercase script letters
+\DeclareFontFamily{OT1}{pzc}{}
+\DeclareFontShape{OT1}{pzc}{m}{it}{<-> s * [1.200] pzcmi7t}{}
+\DeclareMathAlphabet{\mathscr}{OT1}{pzc}{m}{it}
+\usefonttheme[onlymath]{serif}
+
+\AtBeginSection[]{
+\begin{frame}<beamer>
+\frametitle{Lecture Overview}
+\tableofcontents[currentsection]
+\end{frame}
+}
+
+\def\qedsymbol{}
+\makeatletter
+
+\setbeamertemplate{footline}
+{
+  \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+%    \usebeamerfont{author in head/foot}\insertshortauthor
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+    \usebeamerfont{title in head/foot}\insertshorttitle
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,right]{date in head/foot}%
+    \usebeamerfont{date in head/foot}\insertshortdate{}\hspace*{2em}
+%    \insertframenumber\hspace*{2ex}
+  \end{beamercolorbox}}%
+  \vskip0pt%
+}
+\makeatother

@@ -107,8 +107,8 @@ class TrafficGymMeta(TrafficGym):
 
     def step(self, action):
         self.action_array[self._traffic_light_counter] = action
-        ret = super(TrafficGymMeta, self).step(self.action_array)
         self._traffic_light_counter = (self._traffic_light_counter + 1) % len(self.world.traffic_light_waypoints)
+        ret = super(TrafficGymMeta, self).step(self.action_array)
         return ret
 
 
