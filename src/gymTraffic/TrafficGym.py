@@ -86,10 +86,14 @@ class TrafficGym(gym.Env):
 
 
 class TrafficGymMeta(TrafficGym):
-    def __init__(self, build_world_function=graph_3x3circle, action_frequency=1, calculation_frequency=0.01, horizon=1000):
+    def __init__(self, build_world_function=graph_3x3circle, action_frequency=1,
+                 calculation_frequency=0.01, horizon=1000,
+                 shuffle_streets=True):
         super().__init__(build_world_function=build_world_function, action_frequency=action_frequency,
                          calculation_frequency=calculation_frequency, horizon=horizon)
         self._traffic_light_counter = 0
+        self._observation_order = np.argsort(np.random.random(8))
+        self.shuffle_streets = shuffle_streets
         self.action_array = self.action_space.sample()
 
         self._original_action_space = self.action_space
@@ -103,13 +107,22 @@ class TrafficGymMeta(TrafficGym):
         observation_part = self._get_observation_for(self.world.traffic_light_waypoints[self._traffic_light_counter])
         observation = np.ones(8, dtype=np.float32) * -1
         observation[:len(observation_part)] = observation_part
+        if self.shuffle_streets:
+            return observation[self._observation_order]
         return observation
 
     def step(self, action):
-        self.action_array[self._traffic_light_counter] = action
+        # Single action -> action array
+        if self.shuffle_streets:
+            self.action_array[self._traffic_light_counter] = self._observation_order[action]
+        else:
+            self.action_array[self._traffic_light_counter] = action
+
+        # Prepare for next observation
         self._traffic_light_counter = (self._traffic_light_counter + 1) % len(self.world.traffic_light_waypoints)
-        ret = super(TrafficGymMeta, self).step(self.action_array)
-        return ret
+        self._observation_order = np.argsort(np.random.random(8))
+
+        return super(TrafficGymMeta, self).step(self.action_array)
 
 
 class RandomAgent:
