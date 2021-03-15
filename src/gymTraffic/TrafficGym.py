@@ -233,9 +233,9 @@ def test_baseline(env, savepoint="random",render=True):
     velocities = []
     rewards = []
     actions = []
-    # progress = tqdm.tqdm(total=env.horizon)
+    progress = tqdm.tqdm(total=env.horizon)
     while not done:
-        # progress.update(1)
+        progress.update(1)
         if savepoint == "random":
             action = env.action_space.sample()
         elif savepoint == "argmax":
@@ -255,19 +255,18 @@ def test_baseline(env, savepoint="random",render=True):
         t.append(env.world.t)
         rewards.append(reward)
 
+    progress.close()
     import matplotlib.pyplot as plt
 
     print("Actions:",np.unique(actions,return_counts=True))
 
     plt.plot(t,velocities,".",label="Velocity")
-    plt.title(f"{savepoint} - Velocity")
+    plt.plot(t,rewards,".",label=f"Reward ({env.reward_type})")
+    plt.legend()
+    plt.title(f"{savepoint}")
     plt.tight_layout()
-    plt.show()
-
-    plt.plot(t,rewards,".",label="Reward")
-    plt.title(f"{savepoint} - Reward ({env.reward_type})")
-    plt.tight_layout()
-    plt.show()
+    plt.savefig(f"figures/{savepoint}.png")
+    # plt.show()
 
     print("Mean vel:",np.mean(velocities))
     print("Std vel:",np.std(velocities))
