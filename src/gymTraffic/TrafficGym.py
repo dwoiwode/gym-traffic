@@ -239,6 +239,10 @@ def test_baseline(env, savepoint=None,render=True):
     plt.tight_layout()
     plt.show()
 
+    print("Mean vel:",np.mean(velocities))
+    print("Std vel:",np.std(velocities))
+    print("Sum reward:", np.sum(reward))
+
 
 def custom_run(env):
     env = env()
