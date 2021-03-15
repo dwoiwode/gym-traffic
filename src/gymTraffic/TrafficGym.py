@@ -205,9 +205,11 @@ def test_baseline(env, render=True):
     t = []
     velocities = []
     rewards = []
+    actions = []
     while not done:
         action, _ = model.predict(observation)
         # print(action)
+        actions.append(action)
         observation, reward, done, info = env.step(action)
         print(observation)
         print(reward)
@@ -219,6 +221,8 @@ def test_baseline(env, render=True):
         rewards.append(reward)
 
     import matplotlib.pyplot as plt
+
+    print("Actions:",np.unique(actions,return_counts=True))
 
     plt.plot(t,velocities,".",label="Velocity")
     plt.tight_layout()
