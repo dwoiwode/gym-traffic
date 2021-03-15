@@ -34,12 +34,13 @@ class TrafficGym(gym.Env):
         low = []
         high = []
         for tl in self.world.traffic_light_waypoints:
-            low += list(np.zeros_like(self._get_observation_for(tl)))
-            high += list(np.ones_like(self._get_observation_for(tl)))
+            low += list(np.ones_like(self._get_observation_for(tl)) * -1)
+            high += list(np.ones_like(self._get_observation_for(tl)) * 2)
 
         low = np.asarray(low, dtype=np.float32)
         high = np.asarray(high, dtype=np.float32)
         self.observation_space = gym.spaces.Box(low, high)
+        self.reward_range = (-2, 2)
 
     def reset(self):
         self.world.reset()
