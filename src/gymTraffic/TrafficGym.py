@@ -133,7 +133,7 @@ class RandomAgent:
         return self.env.action_space.sample()
 
 
-def stable_baselines(env):
+def stable_baselines(env, name="model"):
     def make_env(env, rank, seed=0):
         """
         Utility function for multiprocessed env.
@@ -176,15 +176,22 @@ def stable_baselines(env):
     evaluation = evaluate_policy(model, env)
     print("Eval1:", evaluation)
     t1 = time.time()
-    model.learn(2000)
+    for i in range(8):  # Each iteration takes about a hour to complete
+        try:
+            model.learn(1000 * 125)
+            print(f"Save model {i}")
+            model.save(f"{name}{i:02d}.stable_baselines")
+        except KeyboardInterrupt:
+            print("Interrupted by KeyBoard")
+            break
     t2 = time.time()
     print(f"Learning took {t2-t1} seconds")
-    model.save("ppo.stable_baselines")
+    # model.save("ppo.stable_baselines")
     print("Evaluating...")
     evaluation = evaluate_policy(model, env)
     print("Eval2:", evaluation)
 
-def test_baseline(env, render=True):
+def test_baseline(env, savepoint=None,render=True):
     env = env()
     model = PPO(
         "MlpPolicy",
@@ -198,7 +205,8 @@ def test_baseline(env, render=True):
         # policy_kwargs=dict(net_arch=[256, 512, 256]),
         policy_kwargs=dict(net_arch=[64, 64]),
     )
-    model.load("ppo.stable_baselines")
+    if savepoint is not None:
+        model.load(savepoint)
 
     done = False
     observation = env.reset()
@@ -253,6 +261,9 @@ if __name__ == '__main__':
 
     env = lambda: TrafficGymMeta(graph_3x3circle, horizon=1000)
 
-    stable_baselines(env)
-    test_baseline(env, render=False)
+    stable_baselines(env,name="PPO_meta_fixedorder_1_")
+    # stable_baselines(env,name="PPO_meta_fixedorder_2_")
+    # test_baseline(env,render=False)
+    test_baseline(env, savepoint="PPO_meta_fixedorder_1_19.stable_baselines",render=False)
+    # test_baseline(env, savepoint="PPO_meta_fixedorder_2_07.stable_baselines",render=False)
     # custom_run(env)
