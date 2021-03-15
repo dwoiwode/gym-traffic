@@ -182,7 +182,7 @@ def stable_baselines(env, name="model"):
         # policy_kwargs=dict(net_arch=[256, 512, 256]),
         policy_kwargs=dict(net_arch=[64, 64]),
     )
-    # model.load("ppo.stable_baselines")
+    # model = model.load("PPO_meta_fixedorder_1_07.stable_baselines")
     env = Monitor(env())
     print("Evaluating...")
     evaluation = evaluate_policy(model, env)
@@ -210,20 +210,22 @@ def test_baseline(env, savepoint="random",render=True):
     print("="*5,f"Savepoint: {savepoint}, reward_type: {env.reward_type}", "="*5)
     print("="*100)
     # env.seed(42)
-    model = PPO(
-        "MlpPolicy",
-        env,
-        tensorboard_log="./ppo_trafficgym_tensorboard/",
-        verbose=2,
-        learning_rate=1e-2,
-        # gamma=0.95,
-        batch_size=256,
-        # batch_size=512,
-        # policy_kwargs=dict(net_arch=[256, 512, 256]),
-        policy_kwargs=dict(net_arch=[64, 64]),
-    )
+    # model = PPO(
+    #     "MlpPolicy",
+    #     env,
+    #     tensorboard_log="./ppo_trafficgym_tensorboard/",
+    #     verbose=2,
+    #     learning_rate=1e-2,
+    #     # gamma=0.95,
+    #     batch_size=256,
+    #     # batch_size=512,
+    #     # policy_kwargs=dict(net_arch=[256, 512, 256]),
+    #     policy_kwargs=dict(net_arch=[64, 64]),
+    # )
     if savepoint not in ["random", "argmax", None]:
-        model.load(savepoint)
+        model = PPO.load(savepoint)
+
+    # evaluation = evaluate_policy(model, env)
 
     done = False
     observation = env.reset()
