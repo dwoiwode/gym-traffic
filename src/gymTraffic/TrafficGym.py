@@ -15,13 +15,17 @@ import logging
 
 
 class TrafficGym(gym.Env):
-    def __init__(self, build_world_function=graph_3x3circle, action_frequency=1, calculation_frequency=0.01, horizon=1000):
+    reward_types = ["mean_velocity", "acceleration"]
+    def __init__(self, build_world_function=graph_3x3circle, action_frequency=1, calculation_frequency=0.01, horizon=1000,
+                 reward_type="mean_velocity"):
         self.world = build_world_function()
         self.action_frequency = action_frequency
         self.calculation_frequency = calculation_frequency
         self.horizon = horizon
         self._next_action = 0
         self.logger = logging.getLogger("TrafficGym")
+        self.reward_type = reward_type
+        self._old_mean_velocity = 0  # Needed for reward calculation if reward_type == "acceleration"
 
         assert isinstance(self.world, World)
 
@@ -62,7 +66,7 @@ class TrafficGym(gym.Env):
         while self.world.t < self._next_action:
             self.world.step(self.calculation_frequency)
         obs = self.get_observation()
-        reward = self.get_reward()
+        reward = self.get_reward(self.action_frequency)
         return obs,reward, self.horizon <= self.world.t, {}
 
     def get_observation(self):
@@ -82,16 +86,22 @@ class TrafficGym(gym.Env):
             # obs.append(len(street.vehicles) *10 / street.length())
         return obs
 
-    def get_reward(self):
-        return (self.world.mean_velocity - 5) / 5
+    def get_reward(self, dt=1.):
+        mean_velocity = self.world.mean_velocity
+        if self.reward_type == "mean_velocity":
+            return (mean_velocity - 5) / 5
+        if self.reward_type == "acceleration":
+            acceleration = (mean_velocity - (self._old_mean_velocity or 0)) / dt
+            self._old_mean_velocity = mean_velocity
+            return acceleration
 
 
 class TrafficGymMeta(TrafficGym):
     def __init__(self, build_world_function=graph_3x3circle, action_frequency=1,
-                 calculation_frequency=0.01, horizon=1000,
+                 calculation_frequency=0.01, horizon=1000, reward_type="mean_velocity",
                  shuffle_streets=True):
         super().__init__(build_world_function=build_world_function, action_frequency=action_frequency,
-                         calculation_frequency=calculation_frequency, horizon=horizon)
+                         calculation_frequency=calculation_frequency, horizon=horizon,reward_type=reward_type)
         self._traffic_light_counter = 0
         self._observation_order = np.argsort(np.random.random(8))
         self.shuffle_streets = shuffle_streets

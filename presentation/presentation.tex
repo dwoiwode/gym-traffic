@@ -7,12 +7,16 @@
 
 \usepackage[ruled,vlined,linesnumbered]{algorithm2e}
 \usepackage{amsmath,amssymb}
+\usepackage{todonotes}
+
 \usepackage{listings}
 \lstset{frame=lines,framesep=3pt,numbers=left,numberblanklines=false,basicstyle=\ttfamily\small}
 \definecolor{blue}{RGB}{0, 74, 153}
 
 
-\usepackage{hyperref}
+\usepackage[
+    pdftitle='Controlling traffic lights with RL'
+]{hyperref}
 % Document
 \title{gym-traffic}
 \subtitle{Controlling traffic lights with Reinforcement Learning}
@@ -22,28 +26,81 @@
 \begin{document}
     \maketitle
     \begin{frame}[c]{The Environment}
+        \begin{columns}
 
+            \column{0.5\textwidth}
+
+%        \includegraphics[width=1.0\textwidth]{images/env.png}
+            \missingfigure[width=1.0\textwidth]{Image of environment}
+
+            \column{0.5\textwidth}
+
+            \begin{itemize}
+                \item Street network as directed graph
+                \item Streets are connected with nodes
+                \item Nodes have traffic lights for each incoming street
+                \item Traffic lights can either be red or green and for each node there can be max one green light
+                \item Vehicles drive on streets and stop at red traffic lights
+            \end{itemize}
+
+
+        \end{columns}
     \end{frame}
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     \begin{frame}[c]{Observation- and Actionspace}
+        \begin{columns}
+            \column{0.5\textwidth}
+            \textbf{Observationspace}
+            \begin{itemize}
+                \item obs = [~]
+                \item For each intersection $t$:
+                \begin{itemize}
+                    \item For each incoming street $s$:
+                \end{itemize}
+                \begin{align*}
+                    obs += \begin{cases}
+                               -1                            & \text{if } |v_s| = 0\\
+                               \sum_{v_s} \frac{v_s.pos}{|s|} & \text{else}
+                    \end{cases}
+                \end{align*}
+                \item[$\leadsto$] obs = 1D-Array with 1 entry for each relevant street
+                \item[$\leadsto$] Requires knowledge about the street network
+            \end{itemize}
+            \pause
 
+            \column{0.5\textwidth}
+            \textbf{Actionspace}
+            \begin{itemize}
+                \item $a = [~]$
+                \item For each intersection $t$:
+                \begin{itemize}
+                    \item $a += <\text{Index of green }s>$
+                \end{itemize}
+                \item[$\leadsto$] Multidiscrete Actionspace
+            \end{itemize}
+
+
+        \end{columns}
     \end{frame}
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     \begin{frame}[c]{Reward}
-
+        \begin{align*}
+            r' &= \frac{1}{|n_v|} \sum_{v \in world} v.velocity \\
+            r &= \frac{r'-5}{5}
+        \end{align*}
     \end{frame}
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     \begin{frame}[c]{Learning an agent}
 
     \end{frame}
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     \begin{frame}[c]{Meta-Learning}
 
