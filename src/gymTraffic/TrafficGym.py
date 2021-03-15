@@ -2,6 +2,7 @@ import time
 
 import gym
 import numpy as np
+import tqdm
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.monitor import Monitor
@@ -202,7 +203,7 @@ def stable_baselines(env, name="model"):
     evaluation = evaluate_policy(model, env)
     print("Eval2:", evaluation)
 
-def test_baseline(env, savepoint=None,render=True):
+def test_baseline(env, savepoint="random",render=True):
     env = env()
     model = PPO(
         "MlpPolicy",
@@ -216,7 +217,7 @@ def test_baseline(env, savepoint=None,render=True):
         # policy_kwargs=dict(net_arch=[256, 512, 256]),
         policy_kwargs=dict(net_arch=[64, 64]),
     )
-    if savepoint is not None:
+    if savepoint not in ["random", "argmax", None]:
         model.load(savepoint)
 
     done = False
@@ -225,13 +226,21 @@ def test_baseline(env, savepoint=None,render=True):
     velocities = []
     rewards = []
     actions = []
+    progress = tqdm.tqdm(total=env.horizon)
     while not done:
-        action, _ = model.predict(observation)
+        progress.update(1)
+        if savepoint == "random":
+            action = env.action_space.sample()
+        elif savepoint == "argmax":
+            action = np.argmax(observation)
+        else:
+            action, _ = model.predict(observation)
+
         # print(action)
         actions.append(action)
         observation, reward, done, info = env.step(action)
-        print(observation)
-        print(reward)
+        # print(observation)
+        # print(reward)
         if render:
             env.render()
 
@@ -252,7 +261,7 @@ def test_baseline(env, savepoint=None,render=True):
 
     print("Mean vel:",np.mean(velocities))
     print("Std vel:",np.std(velocities))
-    print("Sum reward:", np.sum(reward))
+    print("Sum reward:", np.sum(rewards))
 
 
 def custom_run(env):
@@ -274,11 +283,11 @@ def custom_run(env):
 if __name__ == '__main__':
     from worlds.savepoints import *
 
-    env = lambda: TrafficGymMeta(graph_3x3circle, horizon=1000)
+    env = lambda: TrafficGymMeta(graph_3x3circle, horizon=1000,reward_type="mean_velocity")
 
     stable_baselines(env,name="PPO_meta_fixedorder_1_")
     # stable_baselines(env,name="PPO_meta_fixedorder_2_")
-    # test_baseline(env,render=False)
-    test_baseline(env, savepoint="PPO_meta_fixedorder_1_19.stable_baselines",render=False)
+    # test_baseline(env,render=False,savepoint="argmax")
+    test_baseline(env, savepoint="PPO_meta_fixedorder_shuffle_1_10.stable_baselines",render=True)
     # test_baseline(env, savepoint="PPO_meta_fixedorder_2_07.stable_baselines",render=False)
     # custom_run(env)
