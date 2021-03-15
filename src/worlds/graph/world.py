@@ -14,12 +14,15 @@ from worlds.world import World
 
 
 class GraphWorld(World):
-    def __init__(self):
+    def __init__(self, seed=42):
         super().__init__()
         self._waypoints: List[Waypoint] = []
         self._vehicles: List[Vehicle] = []
 
         self._renderer = GraphImageRenderer(self)
+
+        self._seed = seed
+        np.random.seed(seed)
 
     @property
     def waypoints(self):
@@ -28,6 +31,7 @@ class GraphWorld(World):
     @property
     def traffic_light_waypoints(self) -> List[TrafficLight]:
         return list(filter(lambda w: isinstance(w, TrafficLight), self.waypoints))
+
     @property
     def start_waypoints(self) -> List[SpawnPoint]:
         return list(filter(lambda w: isinstance(w, SpawnPoint) and w.can_start, self.waypoints))
@@ -37,11 +41,11 @@ class GraphWorld(World):
         return list(filter(lambda w: isinstance(w, SpawnPoint) and w.can_end, self.waypoints))
 
     @property
-    def vehicles(self):
+    def vehicles(self) -> List[Vehicle]:
         return self._vehicles
 
     @property
-    def mean_velocity(self):
+    def mean_velocity(self) -> float:
         return np.mean([vehicle.velocity for vehicle in self.vehicles])
 
     def reset(self):
@@ -53,8 +57,6 @@ class GraphWorld(World):
 
         for tl in self.traffic_light_waypoints:
             tl.green = []
-
-
 
     def step(self, dt=1.):
         super().step(dt)
