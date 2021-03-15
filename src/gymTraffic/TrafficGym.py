@@ -272,6 +272,7 @@ def test_baseline(env, savepoint="random",render=True):
     print("Mean vel:",np.mean(velocities))
     print("Std vel:",np.std(velocities))
     print("Sum reward:", np.sum(rewards))
+    return np.mean(velocities), np.std(velocities), np.mean(rewards), np.std(rewards), np.sum(rewards)
 
 
 def custom_run(env):
@@ -290,6 +291,21 @@ def custom_run(env):
             env.render()
 
 
+def results_evaluation(savepoint_folder=""):
+    from pathlib import Path
+
+    resultFile = Path("results.csv")
+    if not resultFile.exists():
+        with resultFile.open("w") as d:
+            d.write("filename,vel_mean,vel_std,rew_mean,rew_std,rew_sum\n")
+    for savepoint in Path(savepoint_folder).iterdir():
+        if "ppo" in savepoint.name.lower() and "meta" in savepoint.name.lower():
+            values = test_baseline(env, str(savepoint), render=False)
+            with resultFile.open("a") as d:
+                d.write(",".join(map(str, [savepoint] + list(values))) + "\n")
+            print(savepoint)
+
+
 if __name__ == '__main__':
     from worlds.savepoints import *
 
@@ -301,3 +317,6 @@ if __name__ == '__main__':
     test_baseline(env, savepoint="PPO_meta_fixedorder_shuffle_1_10.stable_baselines",render=True)
     # test_baseline(env, savepoint="PPO_meta_fixedorder_2_07.stable_baselines",render=False)
     # custom_run(env)
+
+    results_evaluation("savepoints/all")
+
