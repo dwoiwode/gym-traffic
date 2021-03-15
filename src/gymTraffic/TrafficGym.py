@@ -205,6 +205,11 @@ def stable_baselines(env, name="model"):
 
 def test_baseline(env, savepoint="random",render=True):
     env = env()
+    print()
+    print("="*100)
+    print("="*5,f"Savepoint: {savepoint}, reward_type: {env.reward_type}", "="*5)
+    print("="*100)
+    # env.seed(42)
     model = PPO(
         "MlpPolicy",
         env,
@@ -226,9 +231,9 @@ def test_baseline(env, savepoint="random",render=True):
     velocities = []
     rewards = []
     actions = []
-    progress = tqdm.tqdm(total=env.horizon)
+    # progress = tqdm.tqdm(total=env.horizon)
     while not done:
-        progress.update(1)
+        # progress.update(1)
         if savepoint == "random":
             action = env.action_space.sample()
         elif savepoint == "argmax":
@@ -253,9 +258,12 @@ def test_baseline(env, savepoint="random",render=True):
     print("Actions:",np.unique(actions,return_counts=True))
 
     plt.plot(t,velocities,".",label="Velocity")
+    plt.title(f"{savepoint} - Velocity")
     plt.tight_layout()
     plt.show()
+
     plt.plot(t,rewards,".",label="Reward")
+    plt.title(f"{savepoint} - Reward ({env.reward_type})")
     plt.tight_layout()
     plt.show()
 
