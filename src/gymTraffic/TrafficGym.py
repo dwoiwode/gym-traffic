@@ -203,25 +203,13 @@ def stable_baselines(env, name="model"):
     evaluation = evaluate_policy(model, env)
     print("Eval2:", evaluation)
 
-def test_baseline(env, savepoint="random",render=True):
+def test_baseline(env, savepoint="random",render=True,iteration=0):
     env = env()
     print()
     print("="*100)
     print("="*5,f"Savepoint: {savepoint}, reward_type: {env.reward_type}", "="*5)
     print("="*100)
     # env.seed(42)
-    # model = PPO(
-    #     "MlpPolicy",
-    #     env,
-    #     tensorboard_log="./ppo_trafficgym_tensorboard/",
-    #     verbose=2,
-    #     learning_rate=1e-2,
-    #     # gamma=0.95,
-    #     batch_size=256,
-    #     # batch_size=512,
-    #     # policy_kwargs=dict(net_arch=[256, 512, 256]),
-    #     policy_kwargs=dict(net_arch=[64, 64]),
-    # )
     if savepoint not in ["random", "argmax", None]:
         model = PPO.load(savepoint)
 
@@ -262,10 +250,12 @@ def test_baseline(env, savepoint="random",render=True):
 
     plt.plot(t,velocities,".",label="Velocity")
     plt.plot(t,rewards,".",label=f"Reward ({env.reward_type})")
+    plt.ylim(-3, 16)
     plt.legend()
     plt.title(f"{savepoint}")
     plt.tight_layout()
-    plt.savefig(f"figures/{savepoint}.png")
+    plt.savefig(f"figures/{savepoint}_{iteration}.png")
+    plt.close()
     # plt.show()
 
     print("Mean vel:",np.mean(velocities))
@@ -290,7 +280,7 @@ def custom_run(env):
             env.render()
 
 
-def results_evaluation(savepoint_folder=""):
+def results_evaluation(savepoint_folder="",iteration=0):
     from pathlib import Path
 
     resultFile = Path("results.csv")
@@ -299,9 +289,9 @@ def results_evaluation(savepoint_folder=""):
             d.write("filename,vel_mean,vel_std,rew_mean,rew_std,rew_sum\n")
     for savepoint in Path(savepoint_folder).iterdir():
         if "ppo" in savepoint.name.lower() and "meta" in savepoint.name.lower():
-            values = test_baseline(env, str(savepoint), render=False)
+            values = test_baseline(env, str(savepoint), render=False,iteration=iteration)
             with resultFile.open("a") as d:
-                d.write(",".join(map(str, [savepoint] + list(values))) + "\n")
+                d.write(",".join(map(str, [savepoint] + list(values) + [iteration])) + "\n")
             print(savepoint)
 
 
