@@ -22,20 +22,16 @@ def create_video(env, savepoint="random", out_filename="video.mp4", video_size=(
         # Get Action
         if savepoint == "random":
             action = env.action_space.sample()
-        elif savepoint =="argmax":
+        elif savepoint == "argmax":
             action = np.argmax(observation)
         else:
             action, _ = model.predict(observation)
 
         observation, reward, done, info = env.step(action)
         img = env.render("rgb_array")
-        # cv2.imshow("Wold",img)
-        # cv2.waitKey(10)
 
-        # resized_img = cv2.resize(img, video_size, cv2.INTER_NEAREST)
-        # out.write(resized_img / 255)
-        # out.write(np.asarray(img, dtype=np.float64)/255)
-        out.write(np.asarray(img*255, dtype=np.uint8))
+        resized_img = cv2.resize(img, video_size, cv2.INTER_NEAREST)
+        out.write(np.asarray(resized_img * 255, dtype=np.uint8))
 
     out.release()
     progress.close()
@@ -44,4 +40,4 @@ def create_video(env, savepoint="random", out_filename="video.mp4", video_size=(
 
 if __name__ == '__main__':
     env = TrafficGymMeta(horizon=300)
-    create_video(env,"argmax","video.mp4")
+    create_video(env, "../../savepoints/ppo_meta_shuffle_acceleration_2_10.stable_baselines", "video.mp4")
