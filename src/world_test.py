@@ -1,4 +1,4 @@
-from worlds.savepoints import graph_3x3circle
+from worlds.savepoints import *
 
 if __name__ == '__main__':
     world = graph_3x3circle()
