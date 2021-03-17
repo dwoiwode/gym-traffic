@@ -5,9 +5,15 @@ from stable_baselines3 import PPO
 import logging
 import tqdm
 
+
 # logging.basicConfig(level=logging.INFO)
 
 def evaluate_model(env, savepoint="random", render=True, iteration=0, plot_results="show"):
+    """
+    Runs an evaluation on an environment given a model.
+    The savepoint can either be `argmax`, `random` or a path to a savepoint for a PPO-Algorithm
+    plot_results can either be  `show` or `save`
+    """
     logger = logging.getLogger(f"Eval[{savepoint}:{iteration}]")
     logger.info("")
     logger.info("=" * 120)
@@ -64,23 +70,32 @@ def evaluate_model(env, savepoint="random", render=True, iteration=0, plot_resul
             plt.savefig(f"figures/{Path(savepoint).name}_{iteration}.png")
         plt.close()
 
-    print("Actions:", np.unique(actions, return_counts=True))
-    print("Mean vel:", np.mean(velocities))
-    print("Std vel:", np.std(velocities))
-    print("Sum reward:", np.sum(rewards))
+    logger.info("Actions:", np.unique(actions, return_counts=True))
+    logger.info("Mean vel:", np.mean(velocities))
+    logger.info("Std vel:", np.std(velocities))
+    logger.info("Sum reward:", np.sum(rewards))
     return np.mean(velocities), np.std(velocities), np.mean(rewards), np.std(rewards), np.sum(rewards)
 
 
-def evaluate_folder(savepoint_folder="", iteration=0):
-    resultFile = Path("results_conventional.csv")
-    if not resultFile.exists():
-        with resultFile.open("w") as d:
+def evaluate_folder(savepoint_folder:Path=Path(""), result_file:Path=Path("results.csv"), iteration=0):
+    """
+    Evaluates a whole range of savepoints in a folder
+    :param savepoint_folder: path to folder
+    :param result_file: path to file for results. will be created if it does not exist
+    :param iteration:
+    :return:
+    """
+    # Check whether file exists and create otherwise
+    if not result_file.exists():
+        result_file.parent.mkdir(exist_ok=True, parents=True)
+        with result_file.open("w") as d:
             d.write("filename,vel_mean,vel_std,rew_mean,rew_std,rew_sum,iteration\n")
-    for savepoint in Path(savepoint_folder).iterdir():
+
+    # Iterate over all checkpoints
+    for savepoint in savepoint_folder.iterdir():
         values = evaluate_model(env, str(savepoint), render=False, iteration=iteration)
-        with resultFile.open("a") as d:
+        with result_file.open("a") as d:
             d.write(",".join(map(str, [savepoint] + list(values) + [iteration])) + "\n")
-        print(savepoint)
 
 
 if __name__ == '__main__':
@@ -91,3 +106,4 @@ if __name__ == '__main__':
     env = TrafficGymMeta(save.graph_3x3bidirectional, horizon=1000, reward_type="acceleration", action_frequency=1)
 
     evaluate_model(env, "../../savepoints/ppo_meta_acceleration_1_10.stable_baselines")
+    evaluate_model(env, "random")
