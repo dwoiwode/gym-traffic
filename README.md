@@ -13,7 +13,7 @@ OpenAI Gym Environment for traffic lights simulation:
     * Vehicles do not crash into each other.
     
 An Agent has to control the traffic lights.
-![](examples/video.gif)
+![](src/examples/video.gif)
 
 ## Installation
 ### Requirements
