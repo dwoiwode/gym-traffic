@@ -17,7 +17,10 @@ import logging
 
 
 class TrafficGym(gym.Env):
-    reward_types = ["mean_velocity", "acceleration"]
+    metadata = {
+        'render.modes': ['human', 'rgb_array'],
+        'reward.types': ["mean_velocity", "acceleration"]
+    }
     def __init__(self, build_world_function=graph_3x3circle, action_frequency=1, calculation_frequency=0.01, horizon=1000,
                  reward_type="mean_velocity"):
         self.world = build_world_function()
@@ -54,7 +57,9 @@ class TrafficGym(gym.Env):
         return self.get_observation()
 
     def render(self, mode='human'):
-        self.world.render()
+        if mode not in self.metadata["render.modes"]:
+            super(TrafficGym, self).render(mode=mode)
+        return self.world.render(mode)
 
     def step(self, action):
         self.logger.debug(f"step<{self.world.t:.2f}>({action})")

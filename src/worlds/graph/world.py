@@ -1,3 +1,4 @@
+import datetime
 from typing import List, Dict, Tuple
 
 import cv2
@@ -14,6 +15,7 @@ from worlds.world import World
 
 
 class GraphWorld(World):
+    render_modes = ["human", "image"]
     def __init__(self, seed=42):
         super().__init__()
         self._waypoints: List[Waypoint] = []
@@ -105,8 +107,10 @@ class GraphWorld(World):
         # == Constants ==
         px_per_meter = 3
         street_width = 2  # m
-        border_offset = [0, 75]  # px
-        to_deg = 180 / np.pi
+        border_offset = [0, 30]  # px
+
+        COLOR_WAYPOINT = [1, 1, 1]
+        COLOR_VEHICLE = [153/255, 74/255, 0]
 
         # == Preparing ==
         waypoint_coordinates: List[Tuple[float, float]] = []
@@ -194,8 +198,7 @@ class GraphWorld(World):
         for i, (center, waypoint_radius, traffic_lights) in enumerate(
                 zip(waypoint_coordinates, waypoint_radii, waypoint_traffic_lights)):
             cv2.circle(img, tuple(center), waypoint_radius, color=[0, 0, 0], thickness=-1)
-            color = [1, 1, 1]
-            cv2.circle(img, tuple(center), waypoint_radius, color=color, thickness=int(px_per_meter * 0.5))
+            cv2.circle(img, tuple(center), waypoint_radius, color=COLOR_WAYPOINT, thickness=int(px_per_meter * 0.5))
             for can_drive, orientation in traffic_lights:
                 color = [0, 1, 0] if can_drive else [0, 0, 1]
                 new_center = center - np.asarray([0, waypoint_radius]) @ [[np.cos(orientation), -np.sin(orientation)],
@@ -206,19 +209,27 @@ class GraphWorld(World):
 
         # Vehicles
         for vehicle, vehicle_size in zip(vehicle_coordinates, vehicle_sizes):
-            color = [1, 0, 0]
-            cv2.circle(img, tuple(vehicle), max(1, vehicle_size), color, thickness=-1)
+            cv2.circle(img, tuple(vehicle), max(1, vehicle_size), COLOR_VEHICLE, thickness=-1)
 
         # === Status ===
         n_cars = len(vehicle_sizes)
         t = self.t
-        traffic_flow = np.nan
 
-        text = f"t={t: 9.3f}s, cars={n_cars:3d}, flow={traffic_flow}, mean_vel={self.mean_velocity:6.4f} m/s"
+        text = f"t={t: 9.3f}s, cars={n_cars:3d}, mean_vel={self.mean_velocity:6.4f} m/s"
         cv2.putText(img, text, (0, 20), cv2.FONT_HERSHEY_PLAIN, 2, color=(1, 1, 1), bottomLeftOrigin=False)
 
         if mode == 'human':
             cv2.imshow("World", img)
-            if cv2.waitKey(10) == ord("q"):
+            key = cv2.waitKey(10)
+            if key == ord("q"):
                 cv2.destroyWindow("World")
                 exit(0)
+            elif key == ord("s"):
+                now = datetime.datetime.now()
+                filename = f"{now.isoformat()}.png"
+                cv2.imwrite(filename, img)
+                print(f"Screenshot saved as {filename}")
+        elif mode == 'rgb_array':
+            return img
+        else:
+            raise NotImplementedError(f"render-mode `{mode}` not implemented")
