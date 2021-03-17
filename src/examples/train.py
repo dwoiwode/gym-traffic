@@ -3,14 +3,12 @@ from typing import Optional
 
 from gym.wrappers import Monitor
 from stable_baselines3 import PPO
-from stable_baselines3.common.base_class import BaseAlgorithm
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.vec_env import SubprocVecEnv
 
 
-
 def train(env_function, name="model", n_processes: int = 6, seed: int = 0, load_checkpoint: Optional[str] = None,
-          from_index=0, to_index=12, steps_per_episode=125*1000):
+          from_index=0, to_index=12, steps_per_episode=125 * 1000):
     """
     Trains a model with a given environment
 
@@ -19,10 +17,13 @@ def train(env_function, name="model", n_processes: int = 6, seed: int = 0, load_
     :param n_processes: number of processes used for training
     :param seed:
     :param load_checkpoint: if None: Create new model. Else: Load model from file
+    :param steps_per_episode: Number of steps for model.learn()
+    :param from_index: starting with this episode (for continuing training later than 0)
+    :param to_index: last index of episode
     :return:
     """
 
-    def make_env(rank:int):
+    def make_env(rank: int):
         """
         Utility function for multiprocessed env.
 
@@ -53,7 +54,7 @@ def train(env_function, name="model", n_processes: int = 6, seed: int = 0, load_
             policy_kwargs=dict(net_arch=[64, 64]),
         )
     else:
-        model = BaseAlgorithm.load(load_checkpoint)
+        model = PPO.load(load_checkpoint)
 
     # Evaluate before training
     env = Monitor(env_function())
@@ -63,7 +64,7 @@ def train(env_function, name="model", n_processes: int = 6, seed: int = 0, load_
 
     # Actual training
     t1 = time.time()
-    for i in range(from_index, to_index):
+    for i in range(from_index, to_index+1):
         try:
             model.learn(steps_per_episode)
             print(f"Save model {i}")

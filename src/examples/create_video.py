@@ -1,14 +1,14 @@
 import cv2
 import numpy as np
 import tqdm
-from stable_baselines3.common.base_class import BaseAlgorithm
+from stable_baselines3 import PPO
 
 from gymTraffic.TrafficGym import TrafficGymMeta
 
 
 def create_video(env, savepoint="random", out_filename="video.mp4", video_size=(1230, 900)):
     if savepoint not in ["random", "argmax", None]:
-        model = BaseAlgorithm.load(savepoint)
+        model = PPO.load(savepoint)
 
     # Videosettings
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
@@ -20,9 +20,9 @@ def create_video(env, savepoint="random", out_filename="video.mp4", video_size=(
     while not done:
         progress.update(env.action_frequency)
         # Get Action
-        if savepoint.startswith("random"):
+        if savepoint == "random":
             action = env.action_space.sample()
-        elif savepoint.startswith("argmax"):
+        elif savepoint =="argmax":
             action = np.argmax(observation)
         else:
             action, _ = model.predict(observation)

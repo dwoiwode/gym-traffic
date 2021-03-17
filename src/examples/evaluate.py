@@ -1,21 +1,21 @@
 from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
-from stable_baselines3.common.base_class import BaseAlgorithm
+from stable_baselines3 import PPO
 import logging
 import tqdm
 
+# logging.basicConfig(level=logging.INFO)
 
-def evaluate_model(env, savepoint="random", render=True, iteration=0, plot_results="save"):
+def evaluate_model(env, savepoint="random", render=True, iteration=0, plot_results="show"):
     logger = logging.getLogger(f"Eval[{savepoint}:{iteration}]")
     logger.info("")
     logger.info("=" * 120)
-    logger.info(f"{f'Savepoint: {savepoint}, reward_type: {env.reward_type}':=^120}")
-    # logger.info("="*5,f"Savepoint: {savepoint}, reward_type: {env.reward_type}", "="*5)
+    logger.info(f"{f' Savepoint: {savepoint}, reward_type: {env.reward_type} ':=^120}")
     logger.info("=" * 120)
 
     if savepoint not in ["random", "argmax", None]:
-        model = BaseAlgorithm.load(savepoint)
+        model = PPO.load(savepoint)
 
     # Evaluation
     t = []
@@ -29,9 +29,9 @@ def evaluate_model(env, savepoint="random", render=True, iteration=0, plot_resul
     while not done:
         progress.update(1)
         # Get Action
-        if savepoint.startswith("random"):
+        if savepoint == "random":
             action = env.action_space.sample()
-        elif savepoint.startswith("argmax"):
+        elif savepoint == "argmax":
             action = np.argmax(observation)
         else:
             action, _ = model.predict(observation)
@@ -87,7 +87,7 @@ if __name__ == '__main__':
     from gymTraffic.TrafficGym import TrafficGym, TrafficGymMeta
     import worlds.savepoints as save
 
-    # env = lambda: TrafficGym(save.graph_3x3circle, horizon=1000, reward_type="acceleration", action_frequency=1)
-    env = lambda: TrafficGymMeta(save.graph_3x3circle, horizon=1000, reward_type="acceleration", action_frequency=1)
+    # env = TrafficGym(save.graph_3x3circle, horizon=1000, reward_type="acceleration", action_frequency=1)
+    env = TrafficGymMeta(save.graph_3x3bidirectional, horizon=1000, reward_type="acceleration", action_frequency=1)
 
-    evaluate_model(env(), "random")
+    evaluate_model(env, "../../savepoints/ppo_meta_acceleration_1_10.stable_baselines")
