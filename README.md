@@ -119,6 +119,7 @@ python examples/train.py
 
 ## Results
 Each model was evaluated at least 5 times.
+To verify these results one can use the savepoints provided in this repository and the evaluate.py in src/examples.
 
 ### Conventional approach
 | Algorithm | Mean Velocity | Sum reward/1000 steps (acceleration) | Steps/Hours trained | 

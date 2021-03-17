@@ -25,7 +25,7 @@
 \setbeamercolor{date in head/foot}{bg=blue} % blue
 \setbeamercolor{date in head/foot}{fg=white}
 \setbeamercolor{author in head/foot}{bg=blue} %blue
-\setbeamercolor{author in head/foot}{fg=white} %blue
+\setbeamercolor{author in head/foot}{fg=white} %white
 \setbeamercolor{title in head/foot}{bg=blue} % blue
 \setbeamercolor{title}{fg=white, bg=blue}
 \setbeamercolor{block title}{fg=white,bg=blue}
@@ -66,8 +66,8 @@
 {
   \leavevmode%
   \hbox{%
-  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
-%    \usebeamerfont{author in head/foot}\insertshortauthor
+  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,left]{author in head/foot}%
+    \usebeamerfont{author in head/foot}\quad\insertframenumber
   \end{beamercolorbox}%
   \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
     \usebeamerfont{title in head/foot}\insertshorttitle

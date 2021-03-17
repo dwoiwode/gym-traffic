@@ -1,6 +1,6 @@
 % Preamble
-\documentclass[aspectratio=43,t,xcolor={usenames,dvipsnames}]{beamer}
-%\documentclass[aspectratio=43,t,xcolor={usenames,dvipsnames},handout]{beamer}
+%\documentclass[aspectratio=43,t,xcolor={usenames,dvipsnames}]{beamer}
+\documentclass[aspectratio=43,t,xcolor={usenames,dvipsnames},handout]{beamer}
 
 % Packages
 \usepackage{beamerstyle}
@@ -11,8 +11,11 @@
 \usepackage{todonotes}
 \usepackage{mdframed}
 \usepackage{csquotes}
-
 \usepackage{listings}
+\usepackage{hyperref}
+
+
+
 \lstset{frame=lines,framesep=3pt,numbers=left,numberblanklines=false,basicstyle=\ttfamily\small}
 \definecolor{blue}{RGB}{0, 74, 153}
 
@@ -21,9 +24,7 @@
   {\usebeamercolor[fg]{emph}\only#2{\bfseries}#1}%
 }
 
-\usepackage[
-    pdftitle={Controlling traffic lights with RL}
-]{hyperref}
+
 
 % Document
 \title{gym-traffic}
@@ -31,8 +32,19 @@
 \author{Dominik Woiwode}
 \date{24.03.2021}
 
+\hypersetup{
+    pdftitle={Controlling traffic lights with RL},
+	pdfauthor={Dominik Woiwode},
+	pdfsubject={Reinforcement Learning},
+	pdfdisplaydoctitle=true,
+}
+
 \begin{document}
-    \maketitle
+    \begin{frame}[c,noframenumbering]
+        \titlepage
+    \end{frame}
+%    \maketitle
+%    \setcounter{\framenumber}{1}
     \begin{frame}[c]{The Environment}
         \begin{columns}
 
@@ -204,14 +216,21 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    \begin{frame}[c]{Future Extensions}
+    \begin{frame}[c]{Discussion/Future Extensions}
+        \begin{itemize}
+            \item Does Markov assumption holds true?
+            \begin{itemize}
+                \item Yes, especially in generalized approach.
+            \end{itemize}
+        \end{itemize}
+        \textbf{Possible Extensions:}
         \begin{itemize}
             \item Communication between intersection
             \begin{itemize}
                 \item For each incoming street: add observation of preceding intersection
                 \item Use RNN to generate a fixed sized representation of all intersection states
             \end{itemize}
-            \item Automatic world generation
+            \item Automatic world generation for different training models
             \item More complex traffic-light rules
             \begin{itemize}
                 \item In reality 2 lanes are allowed to drive in parallel if they do not cross each other
