@@ -4,7 +4,9 @@ import numpy as np
 from utils import distance_euler
 
 distance = distance_euler
-def astar(start:"Waypoint", destination:"Waypoint"):
+
+
+def astar(start: "Waypoint", destination: "Waypoint"):
     """A* algorithm."""
     # In the beginning, the start is the only element in our front.
     # NOW, the first element is the total cost through the point, which is
@@ -35,7 +37,6 @@ def astar(start:"Waypoint", destination:"Waypoint"):
         # Check if the goal has been reached.
         if pos == destination:
             break
-
 
         # Check all neighbors.
         for street in pos.outgoing:

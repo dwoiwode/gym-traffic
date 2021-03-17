@@ -6,8 +6,8 @@ from utils import kmh_to_ms, zero_to_hundert_in_ms2
 
 
 class Vehicle:
-    def __init__(self, path: List[Waypoint], k_fuel=1.5, max_speed=kmh_to_ms(120),
-                 acceleration=zero_to_hundert_in_ms2(14)):
+    def __init__(self, path: List[Waypoint], max_speed=kmh_to_ms(120),
+                 acceleration=zero_to_hundert_in_ms2(14), foreseeing=2):
         # Simulation parameters
         self.path: List[Waypoint] = path
         self.current_street: Driveable = self.path.pop(0)
@@ -17,8 +17,8 @@ class Vehicle:
         self.max_speed = max_speed
         self.acceleration = acceleration
         self.velocity = 0
-        self.fuel = 10000 * k_fuel  # TODO: Calculate based on pathlength
         self.length = 5
+        self.foreseeing = 2  # Used for collision detection in future steps. The higher, the more careful a driver
 
     @property
     def position(self):
@@ -34,13 +34,8 @@ class Vehicle:
             return self.path[0]
 
     def can_drive(self, dt=1):
-        foreseeing = 2.
         own_position = self.current_street.simulate_move(self, 0)
-        next_position = self.current_street.simulate_move(self, foreseeing) + self.length / 2
-
-        # Check fuel
-        if self.fuel <= 0:
-            return False
+        next_position = self.current_street.simulate_move(self, self.foreseeing) + self.length / 2
 
         # Check Traffic lights
         if isinstance(self.current_street, Street):
@@ -51,14 +46,13 @@ class Vehicle:
                     return False
             elif next_position > self.current_street.length():
                 next_street = self.next_street
-                return next_street is None or not next_street.will_collide(self, foreseeing=foreseeing)
+                return next_street is None or not next_street.will_collide(self, foreseeing=self.foreseeing)
 
         # Check other vehicles in street
-        return not self.current_street.will_collide(self, foreseeing=foreseeing)
+        return not self.current_street.will_collide(self, foreseeing=self.foreseeing)
 
     def step(self, dt=1) -> bool:
         """
-
         :return: True if vehicle reached destination, False otherwise
         """
         if self.velocity < self.max_speed:
@@ -82,8 +76,3 @@ class Vehicle:
             self.current_street.register_vehicle(self)
 
         return False
-
-
-class AudiA6(Vehicle):
-    def __init__(self, path: List[Waypoint]):
-        super().__init__(path, max_speed=kmh_to_ms(224))

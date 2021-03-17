@@ -10,6 +10,8 @@ class ValidationError(BaseException):
 
 
 class Driveable:
+    """ Base class for all objects in a world that can contain vehicles """
+
     def __init__(self):
         from worlds.graph.vehicles import Vehicle
         self.vehicles: Dict[Vehicle, float] = {}
@@ -52,14 +54,14 @@ class Driveable:
             next_position = self.simulate_move(vehicle, foreseeing) + vehicle.length / 2
         else:
             own_position = 0
-            next_position = vehicle.current_street.simulate_move(vehicle, foreseeing) + vehicle.length / 2 - vehicle.current_street.length()
+            next_position = vehicle.current_street.simulate_move(vehicle,
+                                                                 foreseeing) + vehicle.length / 2 - vehicle.current_street.length()
         for vehicle in self.vehicles:
             vehicle_position = self.simulate_move(vehicle, 0)
             vehicle_next_position = self.simulate_move(vehicle, foreseeing / 2) - vehicle.length / 2
             if own_position < vehicle_position and next_position >= vehicle_next_position:
                 return True
         return False
-
 
 
 class Waypoint(Driveable):
@@ -127,7 +129,7 @@ class Waypoint(Driveable):
         return valid
 
     def validate(self) -> bool:
-        """ Check whether integrity is valid.
+        """ Check whether waypoint is valid given surrounding streets and waypoints.
         :return True if valid, otherwise False
         """
         # Check self. Use own method for easier inheritance
@@ -177,6 +179,8 @@ class Waypoint(Driveable):
 
 
 class SpawnPoint(Waypoint):
+    """ Waypoint that is potentially able to spawn und remove cars from world """
+
     def __init__(self, position: Tuple[float, float], can_start=True, can_end=True):
         super().__init__(position, 0.1)
         self.can_start = can_start
@@ -193,16 +197,11 @@ class SpawnPoint(Waypoint):
 
 
 class TrafficLight(Waypoint):
-    def __init__(self, position: Tuple[float, float], size: float = 20, transition_duration: float = 20):
+    """ Waypoint that has traffic lights for each incoming street """
+
+    def __init__(self, position: Tuple[float, float], size: float = 20):
         super().__init__(position, size=size)
         self.green = []
-        self.transition_duration = transition_duration
-
-    def step(self, dt=1):
-        super(TrafficLight, self).step()
-        # self.green = self.incoming
-        if np.random.random() < 0.01:
-            self.green = np.random.choice(self.incoming, 1)
 
     def is_allowed_to_drive_from(self, street: "Street"):
         return self.is_green(street)
@@ -212,6 +211,8 @@ class TrafficLight(Waypoint):
 
 
 class Street(Driveable):
+    """ Street that connects 2 waypoints """
+
     def __init__(self, start: Waypoint, dest: Waypoint, lanes=1, speed_limit=kmh_to_ms(50)):
         super().__init__()
         self.start: Waypoint = start

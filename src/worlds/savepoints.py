@@ -1,16 +1,5 @@
-from worlds.graph.trafficlights import Waypoint, SpawnPoint, TrafficLight
-from worlds.pixel.world import PixelWorld
+from worlds.graph.trafficlights import SpawnPoint, TrafficLight
 from worlds.graph.world import GraphWorld
-
-
-def pixel_cross() -> PixelWorld:
-    """ Pixel based world in shape of a cross (+). Got replaced by graph_cross """
-    world = PixelWorld((100, 100))
-    world.add_street((0, 70), (100, 70))  # Horizontal
-    world.add_street((50, 0), (50, 100))  # Vertical
-    world.add_street((0, 70), (50, 100))  # Diagonal
-    world._set_incoming_outgoing_streets()
-    return world
 
 
 def graph_3x3bidirectional() -> GraphWorld:
@@ -62,8 +51,8 @@ def graph_3x3bidirectional() -> GraphWorld:
     shift = 20
     spawn1 = SpawnPoint(waypoint1.position_relative((-shift, -shift)))
     spawn2 = SpawnPoint(waypoint2.position_relative((0, -shift)))
-    spawn3 = SpawnPoint(waypoint3.position_relative((shift*4.5, -shift)))
-    spawn4 = SpawnPoint(waypoint6.position_relative((shift*4.5, 0)))
+    spawn3 = SpawnPoint(waypoint3.position_relative((shift * 4.5, -shift)))
+    spawn4 = SpawnPoint(waypoint6.position_relative((shift * 4.5, 0)))
     spawn5 = SpawnPoint(waypoint9.position_relative((shift, shift)))
     spawn6 = SpawnPoint(waypoint8.position_relative((0, shift)))
     spawn7 = SpawnPoint(waypoint7.position_relative((-shift, shift)))
@@ -78,8 +67,7 @@ def graph_3x3bidirectional() -> GraphWorld:
     spawn7.connect_to(waypoint7, both_directions=True)
     spawn8.connect_to(waypoint4, both_directions=True)
 
-
-    world.add_waypoints(spawn1,spawn2,spawn3,spawn4,spawn5,spawn6,spawn7,spawn8)
+    world.add_waypoints(spawn1, spawn2, spawn3, spawn4, spawn5, spawn6, spawn7, spawn8)
 
     world.validate()
 
@@ -132,8 +120,8 @@ def graph_3x3circle() -> GraphWorld:
     shift = 20
     spawn1 = SpawnPoint(waypoint1.position_relative((-shift, -shift)))
     spawn2 = SpawnPoint(waypoint2.position_relative((0, -shift)))
-    spawn3 = SpawnPoint(waypoint3.position_relative((shift*4.5, -shift)))
-    spawn4 = SpawnPoint(waypoint6.position_relative((shift*4.5, 0)))
+    spawn3 = SpawnPoint(waypoint3.position_relative((shift * 4.5, -shift)))
+    spawn4 = SpawnPoint(waypoint6.position_relative((shift * 4.5, 0)))
     spawn5 = SpawnPoint(waypoint9.position_relative((shift, shift)))
     spawn6 = SpawnPoint(waypoint8.position_relative((0, shift)))
     spawn7 = SpawnPoint(waypoint7.position_relative((-shift, shift)))
@@ -148,12 +136,12 @@ def graph_3x3circle() -> GraphWorld:
     spawn7.connect_to(waypoint7, both_directions=True)
     spawn8.connect_to(waypoint4, both_directions=True)
 
-
-    world.add_waypoints(spawn1,spawn2,spawn3,spawn4,spawn5,spawn6,spawn7,spawn8)
+    world.add_waypoints(spawn1, spawn2, spawn3, spawn4, spawn5, spawn6, spawn7, spawn8)
 
     world.validate()
 
     return world
+
 
 def graph_cross() -> GraphWorld:
     """ Simple + shaped world """
@@ -164,13 +152,13 @@ def graph_cross() -> GraphWorld:
     #
     world = GraphWorld()
     m = 150
-    waypoint_north = SpawnPoint((0,-m),can_end=False)
-    waypoint_south = SpawnPoint((0,m),can_end=False)
-    waypoint_west = SpawnPoint((-m,0),can_end=False)
-    waypoint_east = SpawnPoint((m,0),can_end=False)
-    waypoint_exit = SpawnPoint((m,m), can_start=False)
+    waypoint_north = SpawnPoint((0, -m), can_end=False)
+    waypoint_south = SpawnPoint((0, m), can_end=False)
+    waypoint_west = SpawnPoint((-m, 0), can_end=False)
+    waypoint_east = SpawnPoint((m, 0), can_end=False)
+    waypoint_exit = SpawnPoint((m, m), can_start=False)
 
-    waypoint_middle = TrafficLight((0,0))
+    waypoint_middle = TrafficLight((0, 0))
 
     waypoint_north.connect_to(waypoint_middle)
     waypoint_south.connect_to(waypoint_middle)
@@ -178,12 +166,12 @@ def graph_cross() -> GraphWorld:
     waypoint_east.connect_to(waypoint_middle)
     waypoint_middle.connect_to(waypoint_exit)
 
-    world.add_waypoints(waypoint_north,waypoint_middle,waypoint_west,waypoint_exit,waypoint_south,waypoint_east)
+    world.add_waypoints(waypoint_north, waypoint_middle, waypoint_west, waypoint_exit, waypoint_south, waypoint_east)
 
     world.validate()
 
-
     return world
+
 
 def graph_narrow_tall() -> GraphWorld:
     """ Used as an example image for presentation """
@@ -219,9 +207,9 @@ def graph_narrow_tall() -> GraphWorld:
     # Spawnpoints
     shift = 20
     spawn1 = SpawnPoint(waypoint1.position_relative((-shift, -shift)))
-    spawn2 = SpawnPoint(waypoint2.position_relative((3.5*shift, -shift)))
+    spawn2 = SpawnPoint(waypoint2.position_relative((3.5 * shift, -shift)))
     spawn4 = SpawnPoint(waypoint5.position_relative((shift, 0)))
-    spawn6 = SpawnPoint(waypoint8.position_relative((3.5*shift, shift)))
+    spawn6 = SpawnPoint(waypoint8.position_relative((3.5 * shift, shift)))
     spawn7 = SpawnPoint(waypoint7.position_relative((-shift, shift)))
     spawn8 = SpawnPoint(waypoint4.position_relative((-shift, 0)))
 
@@ -232,8 +220,7 @@ def graph_narrow_tall() -> GraphWorld:
     spawn7.connect_to(waypoint7, both_directions=True)
     spawn8.connect_to(waypoint4, both_directions=True)
 
-
-    world.add_waypoints(spawn1,spawn2,spawn4,spawn6,spawn7,spawn8)
+    world.add_waypoints(spawn1, spawn2, spawn4, spawn6, spawn7, spawn8)
 
     world.validate()
 

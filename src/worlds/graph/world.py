@@ -8,20 +8,18 @@ import numpy as np
 from matplotlib import cm
 
 from worlds.graph.pathfinding import astar
-from worlds.graph.renderer import GraphImageRenderer
 from worlds.graph.trafficlights import Waypoint, SpawnPoint, TrafficLight
 from worlds.graph.vehicles import Vehicle
 from worlds.world import World
 
 
 class GraphWorld(World):
-    render_modes = ["human", "image"]
+    render_modes = ["human", "rgb_array"]
+
     def __init__(self, seed=42):
         super().__init__()
         self._waypoints: List[Waypoint] = []
         self._vehicles: List[Vehicle] = []
-
-        self._renderer = GraphImageRenderer(self)
 
         self._seed = seed
         np.random.seed(seed)
@@ -61,14 +59,19 @@ class GraphWorld(World):
             tl.green = []
 
     def step(self, dt=1.):
+        """ Performs a step in the simulation """
         super().step(dt)
-        removable_vehicles = []
+        # Update waypoints
         for waypoint in self.waypoints:
             waypoint.step(dt)
+
+        # Update vehicles
+        removable_vehicles = []
         for vehicle in self.vehicles:
             if vehicle.step(dt):
                 removable_vehicles.append(vehicle)
 
+        # Remove vehicles if necessary
         for vehicle in removable_vehicles:
             self.remove_vehicle(vehicle)
 
@@ -110,7 +113,7 @@ class GraphWorld(World):
         border_offset = [0, 30]  # px
 
         COLOR_WAYPOINT = [1, 1, 1]
-        COLOR_VEHICLE = [153/255, 74/255, 0]
+        COLOR_VEHICLE = [153 / 255, 74 / 255, 0]
 
         # == Preparing ==
         waypoint_coordinates: List[Tuple[float, float]] = []
