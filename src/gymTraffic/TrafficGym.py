@@ -106,24 +106,25 @@ class TrafficGym(gym.Env):
 class TrafficGymMeta(TrafficGym):
     def __init__(self, build_world_function=graph_3x3circle, action_frequency=1,
                  calculation_frequency=0.01, horizon=1000, reward_type="mean_velocity",
-                 shuffle_streets=True):
+                 shuffle_streets=True, k=8):
         super().__init__(build_world_function=build_world_function, action_frequency=action_frequency,
                          calculation_frequency=calculation_frequency, horizon=horizon,reward_type=reward_type)
         self._traffic_light_counter = 0
-        self._observation_order = np.argsort(np.random.random(8))
+        self._observation_order = np.argsort(np.random.random(k))
         self.shuffle_streets = shuffle_streets
         self.action_array = self.action_space.sample()
+        self.k = k  # Number of streets for each intersection
 
         self._original_action_space = self.action_space
 
         self.action_space = gym.spaces.Discrete(8)
-        low = np.zeros(8, dtype=np.float32)
-        high = np.ones(8, dtype=np.float32) * 2
+        low = np.zeros(k, dtype=np.float32)
+        high = np.ones(k, dtype=np.float32) * 2
         self.observation_space = gym.spaces.Box(low, high)
 
     def get_observation(self):
         observation_part = self._get_observation_for(self.world.traffic_light_waypoints[self._traffic_light_counter])
-        observation = np.ones(8, dtype=np.float32) * -1
+        observation = np.ones(self.k, dtype=np.float32) * -1
         observation[:len(observation_part)] = observation_part
         if self.shuffle_streets:
             return observation[self._observation_order]
@@ -138,6 +139,6 @@ class TrafficGymMeta(TrafficGym):
 
         # Prepare for next observation
         self._traffic_light_counter = (self._traffic_light_counter + 1) % len(self.world.traffic_light_waypoints)
-        self._observation_order = np.argsort(np.random.random(8))
+        self._observation_order = np.argsort(np.random.random(self.k))
 
         return super(TrafficGymMeta, self).step(self.action_array)
