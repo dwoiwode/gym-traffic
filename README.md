@@ -75,12 +75,10 @@ Therefore a slightly different feature-matrix derives:
 
 ### Rewardfunction
 #### mean velocity
-With this reward type the mean velocity for all vehicles $v$ is calculated and normalized around approximately 0:
-$r' &= \frac{1}{|n_v|} \sum_{v \in world} v.velocity $
-$r &= \frac{r'-5}{5}$
+With this reward type the mean velocity for all vehicles is calculated and normalized around approximately 0: r=(r'-5)/5
 
 #### mean acceleration
-With this reward type the acceleration is calculated by dividing the difference of two mean velocities by $\Delta t$.
+With this reward type the acceleration is calculated by dividing the difference of two mean velocities by dt.
 
 ## Hyperparameter
 #### Conventional approach
