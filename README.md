@@ -118,9 +118,20 @@ python examples/train.py
 
 
 ## Results
+Each model was evaluated at least 5 times.
 
-### Single Traffic light environment
+### Conventional approach
+| Algorithm | Mean Velocity | Sum reward/1000 steps (acceleration) | Steps/Hours trained | 
+| --------- | ------------- | ------------------------------------ | ------------- |
+random | 4.200 | 2.626 | - 
+ppo-acceleration | 6.120  | 4.672 | 1.5M steps (~10 hours)
 
-| Algorithm | Hours trained | Mean Velocity | Mean reward (acceleration) |
-| --------- | ------------- | ------------- | -------------------------- |
-| random | - | 
+### Generalized approach
+| Algorithm | Mean Velocity | Sum reward/1000 steps (acceleration) | Steps/Hours trained | 
+| --------- | ------------- | ------------------------------------ | ------------- |
+random | 5.525 | 5.645 | - 
+argmax | 8.115 | 8.023 | - 
+PPO-velocity | 6.383 | 5.815 | 1.5M steps (~9h) 
+PPO-velocity-shuffled | 7.736 | 8.548 | 1.25M steps (~ 7.5h)
+PPO-acceleration-shuffled-1 | 7.991 | 7.522 | 1.25M steps (~ 7.5h)
+PPO-acceleration-shuffled-2 | 7.987 | 5.775 | 1.25M steps (~ 7.5h)
