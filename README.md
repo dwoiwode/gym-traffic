@@ -15,8 +15,7 @@ OpenAI Gym Environment for traffic lights simulation:
 An Agent has to control the traffic lights.
 ![](src/examples/video.gif)
 
-## Installation
-### Requirements
+## Requirements
 
 This project was solved using Python 3.8.6
 
@@ -28,12 +27,61 @@ Requires:
 * tqdm (`pip install tqdm`) (for progressbar in evaluation)
 * stable-baselines3 (for training agents) (`pip install stable-baselines3`)
 
-## Features
+## Overview
+There are different environment and reward types which can be combined in any way:
 
-### Hyperparameter
-First of all there are two possible environments.
+### Environment types
+There are two different environments from which one can choose: 
 
 #### Multi-Discrete environment (Conventional approach)
+In this environment all traffic lights have to be controlled simultaneously.
+
+The observationspace varies depending on the design of the used street network.
+
+The actionspace can be described as Multi-Discrete, as every intersection has its own discrete action.
+
+
+From this following features derive:
+| Features          |       |    Features          |       |        
+| :---              | :---: |         ---:         | :---: |
+| Fully observable  |  YES  | Partially observable |    NO |
+| Static            |   NO  | Dynamic              |   YES |
+| Discrete          |   NO  | Continuous           |   YES |
+| Deterministic     |   NO  | Stochastic           |   YES |
+| Single agent      |  YES  | Multi-agent          |    NO |
+| Competitive       |   NO  | Collaborative        |   YES |
+| Episodic          |  YES  | Sequential           |    NO |
+
+#### Single-Discrete environment (Generalized approach)
+In this environment only on intersection can be controlled at one timestep and observation is only given for this intersection.
+It is assumed that there are k incoming streets at every intersection.
+
+This results in a observationspace of k values, independent of the intersection or design of the street network.
+
+The actionspace is a single discrete action ranging from 0 to k for each timestep.
+
+Therefore a slightly different feature-matrix derives:
+| Features          |       |    Features          |       |        
+| :---              | :---: |         ---:         | :---: |
+| Fully observable  |   NO  | Partially observable |   YES |
+| Static            |   NO  | Dynamic              |   YES |
+| Discrete          |   NO  | Continuous           |   YES |
+| Deterministic     |   NO  | Stochastic           |   YES |
+| Single agent      |  YES  | Multi-agent          |    NO |
+| Competitive       |   NO  | Collaborative        |   YES |
+| Episodic          |  YES  | Sequential           |    NO |
+
+### Rewardfunction
+#### mean velocity
+With this reward type the mean velocity for all vehicles $v$ is calculated and normalized around approximately 0:
+$r' &= \frac{1}{|n_v|} \sum_{v \in world} v.velocity $
+$r &= \frac{r'-5}{5}$
+
+#### mean acceleration
+With this reward type the acceleration is calculated by dividing the difference of two mean velocities by $\Delta t$.
+
+## Hyperparameter
+#### Conventional approach
 | parameter | description | possible settings/default | 
 | --------- | ----------- | ----------------- |
 | horizon | number of steps in until done | 1000 |
@@ -41,15 +89,15 @@ First of all there are two possible environments.
 | action_frequency | time which has to pass until env asks for new action | 1 |
 | reward_type | Method that gives the reward | `mean_velocity`, `acceleration` |
 
-#### Single-Discrete environment (Generalized approach)
+#### Generalized approach
 | parameter | description | possible settings/default | 
 | --------- | ----------- | ----------------- |
+| world | The actual design of the street network |
 | horizon | number of steps in until done | 1000 |
 | calculation_frequency | time steps in which the simulation is calculated | 0.01 |
 | action_frequency | time which has to pass until env asks for new action | 1 |
 | reward_type | Method that gives the reward | `mean_velocity`, `acceleration` |
 | shuffle_streets | order of observation is randomized if set to true. Can be helpful for training |`True`, `False` |
-|  |  |
 
 ## Hardware Setup
 The training was done with following setup:
