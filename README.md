@@ -98,6 +98,8 @@ With this reward type the acceleration is calculated by dividing the difference 
 | action_frequency | time which has to pass until env asks for new action | 1 |
 | reward_type | Method that gives the reward | `mean_velocity`, `acceleration` |
 | shuffle_streets | order of observation is randomized if set to true. Can be helpful for training |`True`, `False` |
+| k | Number of streets that should be considered | 8 |
+
 
 ## Hardware Setup
 The training was done with following setup:
